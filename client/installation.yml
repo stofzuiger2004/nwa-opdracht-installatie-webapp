@@ -1,0 +1,52 @@
+---
+
+- name: Installation of guacamole client
+  hosts: node1
+  gather_facts: true
+  tasks:
+    - name: install dependencies
+      become: yes
+      ansible.builtin.apt:
+        pkg:
+          - maven
+          - openjdk-21-jdk
+          - tomcat9
+    - name: Download guacamole.war
+      ansible.builtin.get_url:
+        url: https://apache.org/dyn/closer.lua/guacamole/1.5.3/binary/guacamole-1.5.3.war?action=download
+        dest: /home/zygho
+    - name: Define guacamole working directory
+      become: yes
+      ansible.builtin.shell: echo GUACAMOLE_HOME=/etc/guacamole >> /etc/default/tomcat9
+    - name: fill in guacamole.properties
+      become: yes
+      ansible.builtin.blockinfile:
+        path: /etc/guacamole/guacamole.properties
+        block: |
+          mysql-hostname: localhost
+          mysql-port: 3306
+          mysql-database: guacamole_db
+          mysql-user: guacamole_user
+          mysql-password: Test123
+    - name: fill in guacd.conf
+      become: yes
+      ansible.builtin.blockinfile:
+        path: /etc/guacamole/guacd.conf
+        block: |
+          [server]
+          bind_host = 0.0.0.0
+          bind_port = 4822
+    - name: Copy guacamole.war to tomcat folder
+      become: yes
+      ansible.builtin.copy:
+        src: /home/zygho/guacamole-1.5.3.war
+        dest: /var/lib/tomcat9/webapps/guacamole.war
+        remote_src: yes
+    - name: restart services
+      become: yes
+      ansible.builtin.systemd:
+        name: '{{item}}.service'
+        state: restarted
+      with_items:
+        - guacd
+        - tomcat9
