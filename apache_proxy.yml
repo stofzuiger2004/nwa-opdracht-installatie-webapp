@@ -1,0 +1,49 @@
+---
+
+- name: Install apache2 to use reverse proxy
+  hosts: node1
+  gather_facts: true
+  tasks:
+    - name: install apache2 package
+      become: yes
+      ansible.builtin.apt:
+        name: apache2
+    - name: enable mods for apache2
+      become: yes
+      community.general.apache2_module:
+        state: present
+        name: '{{item}}'
+      with_items:
+        - proxy
+        - proxy_wstunnel
+        - proxy_http
+        - ssl
+        - rewrite
+    - name: Create site config for apache2s
+      become: yes
+      ansible.builtin.file:
+        path: /etc/apache2/sites-available/guacamole.conf
+        state: touch
+    - name: fill in site config
+      become: yes
+      ansible.builtin.blockinfile:
+        path: /etc/apache2/sites-available/guacamole.conf
+        block: |
+          <VirtualHost *:80>
+            ServerName guacamole.zygho.test
+
+            ProxyRequests On
+            ProxyPass / http://localhost:8080/
+            PRoxyPassReverse / http://localhost:8080/
+          </VirtualHost>
+    - name: Disable default site
+      become: yes
+      ansible.builtin.shell: a2dissite 000-default
+    - name: Enable guacamole site
+      become: yes
+      ansible.builtin.shell: a2ensite guacamole
+    - name: reload apache2 service
+      become: yes
+      ansible.builtin.systemd:
+        name: apache2
+        state: reloaded
