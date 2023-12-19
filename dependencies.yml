@@ -1,0 +1,34 @@
+---
+
+- name: Install Dependencies for guacamole Server
+  hosts: node1
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Install first dependencies
+      ansible.builtin.apt:
+        pkg:
+          - libcairo2-dev
+          - libjpeg62-dev
+          - libpng-dev
+          - libtool-bin
+          - uuid-dev
+          - libavcodec-dev
+          - libavformat-dev
+          - libavutil-dev
+          - libswscale-dev
+          - freerdp2-dev
+          - libpango1.0-dev
+          - libssh2-1-dev
+          - libtelnet-dev
+          - libwebsockets-dev
+          - libssl-dev
+          - libvorbis-dev
+          - libwebp-dev
+          - make
+          - git
+    - name: Install dependencies with dependencies
+      ansible.builtin.apt:
+        pkg:
+          - libvncserver-dev
+          - libjpeg-turbo8-dev
