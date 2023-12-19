@@ -1,0 +1,46 @@
+---
+
+- name: Installation and compilation of guacamole server
+  hosts: node1
+  gather_facts: true
+  tasks:
+    - name: clone code from github
+      ansible.builtin.git:
+        repo: https://github.com/apache/guacamole-server.git
+        dest: /home/zygho/guacamole-server
+        single_branch: yes
+        version: master
+    - name: Run autoreconf
+      ansible.builtin.shell: autoreconf -fi
+      args:
+        chdir: /home/zygho/guacamole-server
+    - name: Add startup files
+      ansible.builtin.shell: ./configure --with-init-dir=/etc/init.d
+      args:
+        chdir: /home/zygho/guacamole-server
+    - name: Build guacamole server
+      make:
+        chdir: /home/zygho/guacamole-server
+    - name: Install guacamole server
+      make:
+        chdir: /home/zygho/guacamole-server
+        target: install
+      become: yes
+    - name: Update symlinks from library
+      ansible.builtin.shell: ldconfig
+      become: yes
+    - name: restart services
+      become: yes
+      systemd:
+        name: guacd
+        daemon-reload: yes
+        state: started
+    - name: Clean installation folder
+      become: yes
+      ansible.builtin.file:
+        path: /home/zygho/guacamole-server
+        state: absent
+
+  
+
+    
