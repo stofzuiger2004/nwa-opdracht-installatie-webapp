@@ -5,6 +5,7 @@
   gather_facts: true
   tasks:
     - name: delete all downloaded files
+      become: yes
       ansible.builtin.file:
         path: /home/zygho/{{item}}
         state: absent
