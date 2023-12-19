@@ -1,0 +1,52 @@
+---
+
+- name: Preparing for installation of guacamole client
+  hosts: node1
+  gather_facts: yes
+  tasks:
+    - name: Create Config directories
+      become: yes
+      ansible.builtin.file:
+        path: "/etc/guacamole/{{item}}"
+        state: directory
+      loop:
+        - /extensions
+        - /lib
+    - name: Create Config files
+      become: yes
+      ansible.builtin.file:
+        path: "/etc/guacamole/{{item}}"
+        state: touch
+      with_items:
+        - guacamole.properties
+        - guacd.conf
+    - name: Download JDBC connector
+      ansible.builtin.get_url:
+        url: https://apache.org/dyn/closer.lua/guacamole/1.5.3/binary/guacamole-auth-jdbc-1.5.3.tar.gz?action=download
+        dest: /home/zygho
+    - name: Extract JDBC Connector
+      ansible.builtin.unarchive:
+        src: /home/zygho/guacamole-auth-jdbc-1.5.3.tar.gz
+        dest: /home/zygho
+        remote_src: yes
+    - name: Copy files to correct folder
+      become: yes
+      ansible.builtin.copy:
+        src: /home/zygho/guacamole-auth-jdbc-1.5.3/mysql/guacamole-auth-jdbc-mysql-1.5.3.jar
+        dest: /etc/guacamole/extensions/guacamole-auth-jdbc-mysql.jar
+        remote_src: yes
+    - name: Download MySQL Library
+      ansible.builtin.copy:
+        src: /home/zygho/mysql-connector-j_8.1.0-1ubuntu23.04_all.deb
+        dest: /home/zygho
+    - name: Install MySQL Library
+      become: yes
+      ansible.builtin.apt:
+        deb: /home/zygho/mysql-connector-j_8.1.0-1ubuntu23.04_all.deb
+    - name: Copy Java connector to guacamole folder
+      become: yes
+      ansible.builtin.copy:
+        src: /usr/share/java/mysql-connector-java-8.1.0.jar
+        dest: /etc/guacamole/lib/mysql-connector.jar
+        remote_src: yes
+
