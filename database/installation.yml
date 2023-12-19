@@ -1,0 +1,34 @@
+---
+
+- name: Installation of mariaDB
+  hosts: node1
+  gather_facts: true
+  tasks:
+    - name: Install mariadb-server package
+      become: yes
+      ansible.builtin.apt:
+        name: mariadb-server
+    - name: Download mysqlclient
+      ansible.builtin.get_url:
+        url: https://files.pythonhosted.org/packages/37/fb/d9a8f763c84f1e789c027af0ffc7dbf94c9a38db961484f253f0552cbb47/mysqlclient-2.2.1.tar.gz
+        dest: /home/zygho
+    - name: Unarchive folder
+      become: yes
+      ansible.builtin.unarchive:
+        src: /home/zygho/mysqlclient-2.2.1.tar.gz
+        dest: /home/zygho/
+        remote_src: yes
+    - name: Install dependencies for mysqlclient
+      become: yes
+      ansible.builtin.apt:
+        pkg:
+          - python3-dev
+          - default-libmysqlclient-dev
+          - build-essential
+          - pkg-config
+    - name: Install mysqlclient
+      become: yes
+      ansible.builtin.shell: python3 setup.py install
+      args:
+        chdir: /home/zygho/mysqlclient-2.2.1
+
