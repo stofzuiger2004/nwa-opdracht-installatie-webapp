@@ -31,4 +31,3 @@
       ansible.builtin.shell: python3 setup.py install
       args:
         chdir: /home/zygho/mysqlclient-2.2.1
-

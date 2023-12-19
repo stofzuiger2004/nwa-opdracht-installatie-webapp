@@ -35,12 +35,3 @@
         name: guacd
         daemon-reload: yes
         state: started
-    - name: Clean installation folder
-      become: yes
-      ansible.builtin.file:
-        path: /home/zygho/guacamole-server
-        state: absent
-
-  
-
-    

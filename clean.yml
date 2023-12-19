@@ -1,0 +1,18 @@
+---
+
+- name: Clean all download files
+  hosts: node1
+  gather_facts: true
+  tasks:
+    - name: delete all downloaded files
+      ansible.builtin.file:
+        path: /home/zygho/{{item}}
+        state: absent
+      with_items:
+        - guacamole-1.5.3.war
+        - guacamole-auth-jdbc-1.5.3.tar.gz
+        - mysqlclient-2.2.1/
+        - mysql-connector-j_8.1.0-1ubuntu23.04_all.deb
+        - guacamole-auth-jdbc-1.5.3/
+        - mysqlclient-2.2.1.tar.gz
+        - guacamole-server/

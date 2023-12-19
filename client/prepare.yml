@@ -49,4 +49,3 @@
         src: /usr/share/java/mysql-connector-java-8.1.0.jar
         dest: /etc/guacamole/lib/mysql-connector.jar
         remote_src: yes
-

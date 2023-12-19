@@ -27,8 +27,3 @@
         query: FLUSH PRIVILEGES
         login_user: root
         config_file: /etc/mysql/my.cnf
-    
-    
-
-
-    
