@@ -1,0 +1,34 @@
+---
+
+- name: Configuration for MariaDB
+  hosts: node1
+  gather_facts: true
+  tasks: 
+    - name: Create database
+      become: yes
+      community.mysql.mysql_db:
+        name: guacamole_db
+        state: present
+        login_user: root
+        config_file: /etc/mysql/my.cnf
+    - name: Create Database User
+      become: yes
+      community.mysql.mysql_user:
+        name: guacamole_user
+        password: Test123
+        priv: 'guacamole_db.*:ALL,GRANT'
+        state: present
+        login_user: root
+        config_file: /etc/mysql/my.cnf
+    - name: Flush privileges
+      become: yes
+      community.mysql.mysql_query:
+        login_db: guacamole_db
+        query: FLUSH PRIVILEGES
+        login_user: root
+        config_file: /etc/mysql/my.cnf
+    
+    
+
+
+    
